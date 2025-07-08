@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Un Mensaje Especial para Karen!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Playfair+Display:wght@400;700&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #000000; /* Negro */
+            --secondary-color: #00008B; /* Azul oscuro (Navy Blue) */
+            --accent-color: #FFD700; /* Oro para detalles o resaltar */
+            --text-color: #333;
+            --bg-gradient-start: #E6E0D4; /* Tono pergamino claro */
+            --bg-gradient-end: #D4C9BC; /* Tono pergamino oscuro */
+
+            /* Colores del sobre antiguo */
+            --envelope-main-color: #F8F3E9;
+            --envelope-line-color: #D4BE9F;
+            --envelope-shadow-color: rgba(0, 0, 0, 0.3);
+
+            /* Colores del sello */
+            --seal-color: #8B0000;
+            --seal-highlight: rgba(255, 255, 255, 0.4);
+            --seal-shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', sans-serif;
+            color: var(--text-color);
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+            cursor: default;
+        }
+
+        /* Contenedor principal del sobre */
+        .envelope-wrapper {
+            position: relative;
+            width: 80vw;
+            max-width: 500px;
+            height: calc(80vw / 1.5);
+            max-height: 330px;
+            z-index: 20;
+            cursor: pointer;
+            perspective: 1000px;
+            box-shadow: 0 15px 40px var(--envelope-shadow-color);
+            border-radius: 8px;
+            transition: opacity 1s ease-out 0.5s, transform 1s ease-out 0.5s;
+        }
+
+        .envelope-wrapper.hidden {
+            opacity: 0;
+            transform: scale(0.8) translateY(-50px);
+            pointer-events: none;
+        }
+
+        .envelope {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s ease-in-out;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Base del sobre */
+        .envelope-body {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: var(--envelope-main-color);
+            border-radius: 8px;
+            z-index: 1;
+        }
+
+        /* Solapas del sobre */
+        .envelope-side-flap, .envelope-bottom-flap {
+            position: absolute;
+            background-color: var(--envelope-main-color);
+            z-index: 2;
+            border-radius: 8px;
+        }
+
+        .envelope-side-flap {
+            width: 50%;
+            height: 100%;
+            top: 0;
+            border-left: 1px solid var(--envelope-line-color);
+            border-right: 1px solid var(--envelope-line-color);
+        }
+        .envelope-side-flap.left {
+            left: 0;
+            transform-origin: right center;
+            transform: skewY(10deg);
+            left: -1%;
+        }
+        .envelope-side-flap.right {
+            right: 0;
+            transform-origin: left center;
+            transform: skewY(-10deg);
+            right: -1%;
+        }
+
+        .envelope-bottom-flap {
+            width: 100%;
+            height: 50%;
+            bottom: 0;
+            border-top: 1px solid var(--envelope-line-color);
+            transform-origin: top center;
+            transform: translateY(20%);
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        /* Solapa superior */
+        .envelope-top-flap {
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            width: calc(100% + 4px);
+            height: 55%;
+            background-color: var(--envelope-flap-color);
+            border: 1px solid var(--envelope-line-color);
+            border-radius: 8px;
+            transform-origin: top;
+            transition: transform 0.8s ease-in-out, z-index 0.4s 0.4s;
+            z-index: 12;
+            overflow: hidden;
+            border-bottom: 0;
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .envelope.open .envelope-top-flap {
+            transform: rotateX(180deg);
+            z-index: 8;
+        }
+
+        /* Sello de cera - Desaparece al abrir */
+        .seal {
+            position: absolute;
+            bottom: 25%;
+            left: 50%;
+            transform: translate(-50%, 50%);
+            width: 80px;
+            height: 80px;
+            background-color: var(--seal-color);
+            border-radius: 50%;
+            box-shadow: 0 5px 20px var(--seal-shadow), inset 0 0 15px rgba(255, 255, 255, 0.25);
+            z-index: 15;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Pacifico', cursive;
+            font-size: 3.5em;
+            color: white;
+            text-shadow: 3px 3px 6px var(--seal-shadow);
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .seal::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 35px;
+            height: 35px;
+            background: radial-gradient(circle at top left, var(--seal-highlight), transparent 60%);
+            border-radius: 50%;
+            filter: blur(7px);
+        }
+
+        .envelope.open .seal {
+            opacity: 0;
+            transform: translate(-50%, 50%) scale(0.5);
+            pointer-events: none;
+        }
+
+        /* Contenido del mensaje - La "carta/pergamino" */
+        .message-content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 80vw;
+            max-width: 600px;
+            height: 80vh;
+            max-height: 700px;
+            background-color: var(--envelope-main-color);
+            border: 2px solid var(--envelope-line-color);
+            border-radius: 10px;
+            padding: 30px;
+            box-sizing: border-box;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 25;
+            overflow-y: auto;
+            text-align: left; /* Alineación del texto por defecto a la izquierda */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+        }
+
+        .message-content.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        /* Contenedor para la foto */
+        .photo-container {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 20px auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 3px solid var(--accent-color);
+        }
+
+        .photo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ESTILOS DE FUENTE ACTUALIZADOS */
+        .message-content h1 {
+            font-family: 'Dancing Script', cursive;
+            color: var(--primary-color);
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.15);
+            text-align: center; /* Centrando el título */
+        }
+
+        .message-content p {
+            font-family: 'Playfair Display', serif; /* NUEVA FUENTE PARA EL CUERPO */
+            font-size: 1.15em;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .message-content p strong {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.2em;
+            color: var(--secondary-color);
+        }
+
+        .message-content .highlight {
+            font-family: 'Playfair Display', serif; /* Mantener la misma fuente para el highlight */
+            color: var(--secondary-color);
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .highlight:hover {
+            color: var(--accent-color);
+        }
+
+        /* Estilo para el agradecimiento final centrado */
+        .final-thanks {
+            text-align: center;
+            font-family: 'Playfair Display', serif; /* Misma fuente que el cuerpo */
+            font-size: 1.2em;
+            margin-top: 30px;
+            color: var(--primary-color); /* Color del texto */
+        }
+
+        .instruction {
+            position: absolute;
+            bottom: 20px;
+            color: var(--text-color);
+            font-size: 1.2em;
+            opacity: 0;
+            animation: fadeInOutInstruction 4s ease-in-out 1s forwards;
+            z-index: 5;
+            text-align: center;
+            width: 100%;
+        }
+
+        @keyframes fadeInOutInstruction {
+            0% { opacity: 0; }
+            25% { opacity: 1; }
+            75% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* Animaciones de fondo */
+        .heart, .star, .basketball {
+            position: absolute;
+            opacity: 0;
+            animation: floatUp 10s infinite ease-in-out;
+            pointer-events: none;
+            font-size: 2.5em;
+            filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.2));
+        }
+
+        .heart {
+            color: #ff69b4;
+        }
+
+        .star {
+            color: gold;
+        }
+
+        .basketball {
+            color: #FF8C00;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg) scale(0.8);
+                opacity: 0;
+            }
+            10% { opacity: 1; transform: translateY(-10vh) rotate(30deg) scale(1); }
+            90% { opacity: 1; }
+            100% {
+                transform: translateY(-100vh) rotate(360deg) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        .particle {
+            position: absolute;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            opacity: 0;
+            animation: sparkle 1.5s infinite;
+            width: 8px;
+            height: 8px;
+            box-shadow: 0 0 5px var(--accent-color);
+        }
+
+        @keyframes sparkle {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="envelope-wrapper" id="envelopeWrapper">
+        <div class="envelope" id="envelope">
+            <div class="envelope-body"></div>
+            <div class="envelope-side-flap left"></div>
+            <div class="envelope-side-flap right"></div>
+            <div class="envelope-bottom-flap"></div>
+            <div class="envelope-top-flap"></div>
+            <div class="seal" id="seal">K</div>
+        </div>
+    </div>
+    
+    <div class="message-content" id="messageContent">
+        <div class="photo-container">
+            <img src="fotokaren.jpg" alt="Foto de Karen"> 
+        </div>
+        <h1>Para una Persona Espectacular: Karen</h1>
+        <p>Mi querida **Karen**, 😊</p>
+        <p>Quería tomarme un momento para decirte algo muy importante. Eres, sin duda, una persona <span class="highlight">espectacular</span> ✨ y estoy increíblemente agradecido 🙏 de tenerte en mi vida. Has demostrado ser una <span class="highlight">gran amiga</span> 💖, y valoro muchísimo 🥰 cada momento que compartimos.</p>
+        <p>Admiro tanto la pasión 🔥 con la que persigues tus sueños y metas, y esa increíble capacidad que tienes para hacer que las cosas te salgan bien, <span class="highlight">¡tal como las planeas!</span> 😉 Me encanta tu energía ⚡, tu forma de ser <span class="highlight">sincera</span> 💯 y esa <span class="highlight">risa contagiosa</span> 😄 que ilumina todo 🌟.</p>
+        <p>Sé lo mucho que disfrutas del <span class="highlight">baloncesto</span> 🏀, de <span class="highlight">bailar</span> 💃, de <span class="highlight">dormir</span> 😴 (¡quién no!), y de hacer <span class="highlight">deporte</span> 💪 en general. Eres una persona tan <span class="highlight">activa</span> 🏃‍♀️ y dedicada, siempre buscando mejorar y dar lo mejor de ti. Eres una verdadera inspiración 🌟.</p>
+        <p>Quiero que sepas que te tengo un aprecio inmenso ❤️, un cariño muy grande 🤗 y una <span class="highlight">admiración profunda</span> 🙌 por la persona maravillosa que eres. Siempre contarás con mi apoyo 👍 y mi más sincero afecto 😊.</p>
+        <p class="final-thanks">Gracias por ser tú, Karen. 😊💖🌟</p>
+    </div>
+    <div class="instruction">¡Toca el sobre para abrirlo!</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const envelopeWrapper = document.getElementById('envelopeWrapper');
+            const envelope = document.getElementById('envelope');
+            const messageContent = document.getElementById('messageContent');
+            const instruction = document.querySelector('.instruction');
+            let isOpen = false;
+
+            envelope.addEventListener('click', () => {
+                if (!isOpen) {
+                    envelope.classList.add('open'); // Abre la solapa del sobre
+                    instruction.style.display = 'none'; // Oculta la instrucción
+                    isOpen = true;
+
+                    // Retraso para que la solapa termine de abrirse antes de que el sobre desaparezca
+                    // y el pergamino aparezca y escale
+                    setTimeout(() => {
+                        envelopeWrapper.classList.add('hidden'); // Hace desaparecer el sobre
+                        messageContent.classList.add('active'); // Muestra y escala el pergamino
+                    }, 800); // Duración de la animación de la solapa
+                }
+            });
+
+            const body = document.body;
+
+            // Función para crear CORAZONES, ESTRELLAS y BALONES flotantes
+            function createFloatingElement(type) {
+                const element = document.createElement('div');
+                element.classList.add(type);
+                if (type === 'heart') element.innerHTML = '❤️';
+                else if (type === 'star') element.innerHTML = '⭐';
+                else if (type === 'basketball') element.innerHTML = '🏀';
+                element.style.left = `${Math.random() * 100}vw`;
+                element.style.animationDuration = `${Math.random() * 5 + 5}s`;
+                element.style.animationDelay = `${Math.random() * 5}s`;
+                element.style.fontSize = `${Math.random() * 1.5 + 2}em`;
+                body.appendChild(element);
+                element.addEventListener('animationend', () => element.remove());
+            }
+
+            setInterval(() => createFloatingElement('heart'), 800);
+            setInterval(() => createFloatingElement('star'), 600);
+            setInterval(() => createFloatingElement('basketball'), 900);
+
+            // Partículas de brillo
+            function createSparkleParticle() {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                const size = Math.random() * 8 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.top = `${Math.random() * 100}vh`;
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.animationDuration = `${Math.random() * 1 + 1}s`;
+                particle.style.animationDelay = `${Math.random() * 0.5}s`;
+                body.appendChild(particle);
+                particle.addEventListener('animationend', () => particle.remove());
+            }
+
+            setInterval(createSparkleParticle, 100);
+        });
+    </script>
+</body>
+</html>
